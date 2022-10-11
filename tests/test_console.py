@@ -6,6 +6,16 @@ import pep8
 import console
 from console import HBNBCommand
 from datetime import datetime
+from console import HBNBCommand
+from models.engine.file_storage import FileStorage
+from models import storage
+import unittest
+import datetime
+from unittest.mock import patch
+import sys
+from io import StringIO
+import re
+import os
 
 
 class TestConsoleDocs(unittest.TestCase):
