@@ -1,67 +1,60 @@
 #!/usr/bin/python3
-"""writes class FileStorage serializes/deserializes insts to/from JSON file"""
-
-
+""" File Storage module """
+from datetime import datetime
+import os
 import json
-# from models.base_model import BaseModel
-import os.path
 
 
 class FileStorage:
-    """defines class that helps w/ deserialization/serialization of objects"""
-    # declare private attributes
-    __file_path = "file.json"  # value is a placeholder since path comes later
-    __objects = {}  # an empty dictionary for now, future home of all object
+    """ File Storage Class """
+    __file_path = "file.json"
+    __objects = {}
 
     def all(self):
-        """returns the dictionary __objects"""
-        return self.__objects  # instance methods instantiate class atrr onsite
+        """ Returns the dictionary __objects"""
+        return FileStorage.__objects
 
     def new(self, obj):
-        """adds obj to __objects with <obj class name>.id as key"""
-        self.__objects["{}.{}".format(type(obj).__name__, obj.id)] = obj
+        """ sets in __objects the obj with the key <obj class name>.id """
+        key = "{}.{}".format(type(obj).__name__, obj.id)
+        FileStorage.__objects[key] = obj
+
+    def classes(self):
+        """ Returns a dict of all valid classes """
+        from models.base_model import BaseModel
+        from models.state import State
+        from models.city import City
+        from models.place import Place
+        from models.review import Review
+        from models.amenity import Amenity
+        from models.user import User
+
+        classes = {"BaseModel": BaseModel,
+                   "State": State,
+                   "City": City,
+                   "Amenity": Amenity,
+                   "Place": Place,
+                   "Review": Review,
+                   "User": User}
+        return classes
 
     def save(self):
-        """serializes __objects to JSON file __file_path"""
-        # fix error that class is not serializable json object
-        jobject = {}  # create empty dictionary to hold class dictionary
-        for key in self.__objects.items():  # start iterating thru dict
-            # need to make __objects serializable and turn values into dict
-            jobject[key] = value.to_dict()
-        with open(self.__file_path, 'w', encoding="utf-8") as jfile:
-            json.dump(jobject, jfile)
+        """ serializes __objects to the JSON file (path __file_path) """
+        with open(FileStorage.__file_path, "w") as f:
+            my_dict = {key: val.to_dict() for key, val in
+                       FileStorage.__objects.items()}
+            json.dump(my_dict, f)
 
     def reload(self):
-        """deserializes JSON file to __objects if __file_path exists"""
-        file_exists = os.path.exists(self.__file_path)
-        if file_exists:  # check json file existence
-            with open(self.__file_path, encoding="utf-8") as jfile:
-                # opened file for reading not read it
-                redfile = jfile.read()
-                # load read json file into  __objects
-                self.__objects = json.loads(redfile)
-            # create dictionary within dictionary
-            # for key, value in tempobjects.items():
-               # self.__objects[key] = value.to_dict() 
-        else:
+        """ deserializes the JSON file to __objects (only if the JSON file
+        (__file_path) exists) """
+        if not os.path.isfile(FileStorage.__file_path):
             return
-
-# importing at end of file prevent circular import error for partial initiali.
-from models.base_model import BaseModel
-    # coommenting out next 3 lines b/c not needed & return not correct
-    # def __init__(self):
-    # self.__objects = __objects
-    # return __objects.__dict__
-
-    # objects is private needs double under scores
-    # def all(self):
-    # return self.objects
-
-# def new(self, obj):
-# pass
-
-# def save(self):
-# pass
-
-# def reload(self):
-# pass
+        with open(FileStorage.__file_path, "r") as f:
+            try:
+                obj_dict = json.load(f)
+            except:
+                return
+            obj_dict = {k: self.classes()[v["__class__"]](**v) for k, v in
+                        obj_dict.items()}
+            FileStorage.__objects = obj_dict
