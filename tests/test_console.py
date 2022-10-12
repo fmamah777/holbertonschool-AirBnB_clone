@@ -1,11 +1,6 @@
 #!/usr/bin/python3
-"""Console Unittest"""
+"""module to test the console/ TestCommand"""
 
-import unittest
-import pep8
-import console
-from console import HBNBCommand
-from datetime import datetime
 from console import HBNBCommand
 from models.engine.file_storage import FileStorage
 from models import storage
@@ -17,9 +12,6 @@ from io import StringIO
 import re
 import os
 
-
-class TestConsoleDocs(unittest.TestCase):
-    """unittest"""
 
 class TestCommand(unittest.TestCase):
 
@@ -791,4 +783,4 @@ class TestCommand(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()                )
+    unittest.main()
